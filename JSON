@@ -1,0 +1,70 @@
+// PARA MOSTRAR TODO SOLO SE REQUIERE LA RUTA Y ARCHIVO JSON EN BLANCO
+
+// CREAR USUARIO LOGIN 
+// RUTA: /crearUsurLogin
+{
+    "user":"pruebas",
+    "password":1234
+}
+
+// INSERTAR PROPIETARIO 
+// RUTA: /Insertar_Propietario
+{
+    "Primer_Nombre":"juan",
+    "Segundo_Nombre":"juan",
+    "Primer_Apellido":"ramirez",
+    "Segundo_Apellido":"perez",
+    "Correo":"correo@correo.com",
+    "Telefono":3105786985,
+    "Direccion_De_Contacto":"MZ A CS 24",
+    "Documento_De_Identidad":"123456"
+}
+
+// MOSTRAR TODOS LOS PROPIETARIO 
+// RUTA: /MostrarPropietarios
+{
+    "Documento_De_Identidad":"123456"
+}
+
+// INSERTAR INMUEBLE
+// RUTA: /Insertar_Inmueble
+{
+    "Id_inmueble":"A24",
+    "Direccion":"MZ A CS 24",
+    "Numero_Identificacion":123456
+}
+
+// MOSTRAR INMUEBLE -- NO FUNCIONA
+// RUTA: /Mostrarinmueble
+{
+    "Id_inmueble":"A24"
+}
+
+// GUARDAR FACTURA
+// RUTA: /guardarFactura
+{
+    "Id_inmueble":"A24",
+    "direccion":"MZ A CS 24",
+    "fechaGeneracion":"MZ A CS 24",
+    "idPropietario":123456,
+    "primerNombre":"juan",
+    "segundoNombre":"juan",
+    "primerApellido":"ramirez",
+    "segundoApellido":"perez",
+    "ncuotas":1,
+    "descripcion":"Cuota administracion",
+    "valMes":90000,
+    "totalPagar":90000
+}
+
+// BUSCAR FACTURA CON ID PROPIETARIO
+// RUTA: /buscarPredioPropietario
+{
+    "idPropietario":123456
+}
+
+// BUSCAR FACTURA CON ID INMUEBLE
+// RUTA: /buscarPredioDireccion
+{
+    "Id_inmueble":"A24"
+}

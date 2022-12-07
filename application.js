@@ -8,7 +8,7 @@ app.use(cors())
 
 app.listen(3009,function(){
 
-console.log("Api G36 en el puerto 3009")
+    console.log("API escuchando por el puerto 3009")
 })
 
 app.use(express.json())

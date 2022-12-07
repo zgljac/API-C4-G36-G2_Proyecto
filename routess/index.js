@@ -12,7 +12,29 @@ res.send("la API DEL EQUIPO G36 FUNCIONA OK")
 })
 
 // LOGIN
-
+router.post("/login",urlcodeParser,async(req,res)=>{
+	var usuario={	
+			Usuario:req.body.user,
+			password:parseInt(req.body.password) //el parseInt es porque la clave generaba error, estaba en text y no numérico
+		   }
+	console.log(usuario)
+	const db= await connexion()
+	await db.collection('user').find(usuario).toArray(function(err,result){
+	if(err){res.send(err)}	
+	else{
+		if(result.length>0)
+		{	
+			res.status(200).send({existe:1,userId:result[0]._id})	
+		   console.log(result[0]._id)
+		   console.log(result)
+		   }
+		   else
+		   {
+			   res.status(200).send({existe:0})
+		   }
+		}
+	   })	
+	})
 
 // CREAR USUARIO LOGIN
 router.post("/crearUsurLogin",urlcodeParser, async(req,res,err)=>{
@@ -31,7 +53,7 @@ router.post("/crearUsurLogin",urlcodeParser, async(req,res,err)=>{
 		}
 	}
 	})
-	})
+})
 
 // PROPIETARIOS
 //código para INSERTAR un DOCUMENTO EN PROPIETARIO
@@ -129,14 +151,13 @@ console.log('documento elimado correctamente')
 // INSERTAR INMUEBLE
 router.post("/Insertar_Inmueble",urlcodeParser,async(req,res,err)=>{
 	var obj={
-		Id_inmueble:req.body.id_inmueble,
-		Direccion:req.body.direccion,
-		Numero_Identificacion:req.body.numero_identificacion,
-		Id_Tarifa:req.body.tarifa
+		Id_inmueble:req.body.Id_inmueble,
+		Direccion:req.body.Direccion,
+		Numero_Identificacion:req.body.Numero_Identificacion,
 	}
 	console.log(obj)
-	const db= await connection()
-	await db.collection('inmueble').insertOne(obj,function(err,result){
+	const db= await connexion()
+	await db.collection('inmuebles').insertOne(obj,function(err,result){
 		if(err){res.send(err)}
 		else{
 			res.status(200).send({save:1})
@@ -147,26 +168,22 @@ router.post("/Insertar_Inmueble",urlcodeParser,async(req,res,err)=>{
 	})
 })
 
-// CONSULTAR INMUEBLE
-router.post("/Mostrarinmueble",urlcodeParser,async(req,res)=>{
-	const db= await connection()
-	await db.collection('inmueble').find().toArray(function(err,result){
-		if(err){res.send(err)}
-		console.log(result)
-		res.status(200).send({result})
+// CONSULTAR TODOS LOS INMUEBLES
+router.post("/mostrarInmuebles",urlcodeParser,async(req,res)=>{
+	const db= await connexion()
+	await db.collection('inmuebles').find().toArray(function(err,result){
+		 if(err){res.send(err)}
+		 console.log(result)
+		 res.status(200).send({result})
+	   })
 	})
-})
 
 // ACTUALIZAR INMUEBLE
 router.post("/updateinmueble",urlcodeParser,async(req,res)=>{
-	let obj_buscar={Direccion:req.body.direccion}
-	
+	let obj_buscar={Id_inmueble:req.body.Id_inmueble}	
 	let cambios={$set:{Numero_Identificacion:parseInt(req.body.numero_identificacion)}}
-	console.log(obj_buscar)
-	console.log(cambios)
-
 	const db= await connection()
-	await db.collection('inmueble').updateOne(obj_buscar,cambios,function(err){
+	await db.collection('inmuebles').updateOne(obj_buscar,cambios,function(err){
 		if(err)throw err
 
 			if(err){res.send(err)}
@@ -176,16 +193,13 @@ router.post("/updateinmueble",urlcodeParser,async(req,res)=>{
 				}
 	})
 })
-
-// 
+// OTRO INMUEBLE
 router.post("/inmuebleJoin",urlcodeParser,async(req,res)=>{
-
 	let consulta=[
 		{
 			$lookup:{from:'inmueble', localField:'inmueble' ,foreignField:'_id', as :'Descripcion_inmueble'}
 		}
 	]
-	console.log(consulta)
 	const db = await connection()
 	await db.collection('inmueble').aggregate(consulta).toArray(function(err,result){
 		if(err){res.send(err)}
@@ -196,6 +210,7 @@ router.post("/inmuebleJoin",urlcodeParser,async(req,res)=>{
 	})
 })
 
+// OTRO INMUEBLE 2
 router.post("/inmuebleJoin2",urlcodeParser,async(req,res)=>{
 
 	let consulta=[
@@ -220,10 +235,9 @@ router.post("/inmuebleJoin2",urlcodeParser,async(req,res)=>{
 // FACTURAS
 // BUSCAR FACTURA POR DIRECCION PREDIO
 router.post("/buscarPredioDireccion",urlcodeParser,async(req,res)=>{
-	let busqueda={direccion:req.body.direccion}
-	console.log(busqueda)
+	let busqueda={Id_inmueble:req.body.Id_inmueble}
 	const db=await connexion()
-	await db.collection('facturas').find(busqueda).toArray(function(err,result){
+	await db.collection('facturacion').find(busqueda).toArray(function(err,result){
 	  if(err){res.send(err)}
 		  else{
 			  res.status(200).send({result})
@@ -235,9 +249,8 @@ router.post("/buscarPredioDireccion",urlcodeParser,async(req,res)=>{
 // BUSCAR FACTURA POR PROPIETARIO
 router.post("/buscarPredioPropietario",urlcodeParser,async(req,res)=>{
 	let busqueda={idPropietario:req.body.idPropietario}
-	console.log(busqueda)
 	const db=await connexion()
-	await db.collection('facturas').find(busqueda).toArray(function(err,result){
+	await db.collection('facturacion').find(busqueda).toArray(function(err,result){
 	  if(err){res.send(err)}
 		  else{
 			  res.status(200).send({result})
@@ -246,10 +259,10 @@ router.post("/buscarPredioPropietario",urlcodeParser,async(req,res)=>{
 	   })
 	})
 
-//MOSTRAR FACTURA TODAS LAS FACTURAS
+//MOSTRAR TODAS LAS FACTURAS
 router.post("/mostrarFacturas",urlcodeParser,async(req,res)=>{
 	const db= await connexion()
-	await db.collection('facturas').find().toArray(function(err,result){
+	await db.collection('facturacion').find().toArray(function(err,result){
 		 if(err){res.send(err)}
 		 console.log(result)
 		 res.status(200).send({result})
@@ -260,7 +273,7 @@ router.post("/mostrarFacturas",urlcodeParser,async(req,res)=>{
 router.post("/guardarFactura",urlcodeParser, async(req,res,err)=>{
 	const db=await connexion()
 	var obj={
-		idFactura:req.body.idFactura,
+		Id_inmueble:req.body.Id_inmueble,
 		direccion:req.body.direccion,
 		fechaGeneracion:req.body.fechaGeneracion,
 		idPropietario:req.body.idPropietario,
@@ -268,14 +281,12 @@ router.post("/guardarFactura",urlcodeParser, async(req,res,err)=>{
 		segundoNombre:req.body.segundoNombre,
 		primerApellido:req.body.primerApellido,
 		segundoApellido:req.body.segundoApellido,
-		fechaLimitePago:req.body.fechaLimitePago,
 		ncuotas:req.body.ncuotas,
 		descripcion:req.body.descripcion,
 		valMes:req.body.valMes,
-		totalPagar:req.body.total
+		totalPagar:req.body.totalPagar
 		}
-	console.log(obj)
-	await db.collection('facturas').insertOne(obj,function(err,result){
+	await db.collection('facturacion').insertOne(obj,function(err,result){
 	if(err){res.send(err)}
 		else{
 			res.status(200).send({save:1})
@@ -284,6 +295,31 @@ router.post("/guardarFactura",urlcodeParser, async(req,res,err)=>{
 		}
 	}
 	})
+})
+
+// EN FACTURA CARGAR DIRECCION PREDIO CON ID INMUEBLE
+router.post("/mostrarPredioFactura",urlcodeParser,async(req,res)=>{
+	let busqueda={Id_inmueble:req.body.Id_inmueble}
+	const db=await connexion()
+	await db.collection('inmuebles').find(busqueda).toArray(function(err,result){
+	  if(err){res.send(err)}
+		  else{
+			  res.status(200).send({result})
+		  }
+	   })
 	})
+
+// EN FACTURA CARGAR DATOS PROPIETARIO CON ID PROPIETARIO
+router.post("/mostrarPropietarioFactura",urlcodeParser,async(req,res)=>{
+	let busqueda={Documento_De_Identidad:req.body.Documento_De_Identidad}
+	const db=await connexion()
+	await db.collection('Propietarios').find(busqueda).toArray(function(err,result){
+	  if(err){res.send(err)}
+		  else{
+			  res.status(200).send({result})
+		  }
+	   })
+	})
+
 
 module.exports=router
